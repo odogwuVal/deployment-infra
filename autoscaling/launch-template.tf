@@ -1,0 +1,37 @@
+module "asg" {
+  source                         = "../modules/ec2-autoscaling"
+  createdby                      = "Madu Valentine"
+  project                        = "hydrogenPay"
+  owners                         = "651611223190"
+  key_name                       = "hydrogenPay"
+  min_size                       = 1
+  desired_capacity               = 1
+  max_size                       = 5
+  vpc_zone_identifier            = module.vpc.public_subnet_id
+  adjustment_type                = "ChangeInCapacity"
+  scaling_adjustment             = "1"
+  cooldown                       = "150"
+  policy_type                    = "SimpleScaling"
+  comparison_operator            = "GreaterThanOrEqualToThreshold"
+  evaluation_periods             = "2"
+  metric_name                    = "CPUUtilization"
+  period                         = "120"
+  statistic                      = "Average"
+  threshold                      = "70"
+  scale_down_scaling_adjustment  = "-1"
+  scale_down_comparison_operator = "LessThanOrEqualToThreshold"
+  scale_down_threshold           = "30"
+  internal                       = "false"
+  load_balancer_type             = "application"
+  security_groups                = module.vpc.sg_id
+  lb_subnets                     = module.vpc.public_subnet_id
+  target_port                    = 80
+  target_protocol                = "HTTP"
+  vpc_id                         = module.vpc.vpc_id
+  listener_port                  = "443"
+  listener_protocol              = "HTTPS"
+  certificate_arn                = var.certificate_arn
+  allowed_cidrs                  = [var.allowed_cidrs]
+  source_security_group_id       = module.vpc.sg_id
+  depends_on                     = [module.vpc]
+}
